@@ -2,7 +2,6 @@ package com.CleverBuddy.service;
 
 import com.cleverbuddy.model.Notification;
 import com.cleverbuddy.repository.NotificationRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,23 +9,22 @@ import java.util.List;
 @Service
 public class NotificationService {
 
-    @Autowired
-    private NotificationRepository notificationRepository;
+    private final NotificationRepository notificationRepository;
 
-    public List<Notification> getAllNotificationsByUserId(Long userId) {
-        return notificationRepository.findByUserId(userId);
+    public NotificationService(NotificationRepository notificationRepository) {
+        this.notificationRepository = notificationRepository;
+    }
+
+    public List<Notification> getAllNotifications() {
+        return notificationRepository.findAll();
+    }
+
+    public Notification saveNotification(Notification notification) {
+        return notificationRepository.save(notification);
     }
 
     public Notification getNotificationById(Long id) {
-        return notificationRepository.findById(id).orElse(null);
-    }
-
-    public Notification createNotification(Notification notification) {
-        return notificationRepository.save(notification);
-    }
-
-    public Notification updateNotification(Notification notification) {
-        return notificationRepository.save(notification);
+        return notificationRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Notification not found with id " + id));
     }
 
     public void deleteNotification(Long id) {

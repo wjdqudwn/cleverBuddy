@@ -1,41 +1,48 @@
 package com.CleverBuddy.controller;
-import com.cleverbuddy.model.Question;
-import com.cleverbuddy.service.QuestionService;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/questions")
+@RequestMapping("/questions")
 public class QuestionController {
 
-    @Autowired
-    private QuestionService questionService;
+    private final QuestionService questionService;
 
-    @GetMapping("/user/{userId}")
-    public List<Question> getQuestionsByUserId(@PathVariable Long userId) {
-        return questionService.getAllQuestionsByUserId(userId);
+    @Autowired
+    public QuestionController(QuestionService questionService) {
+        this.questionService = questionService;
     }
 
-    @GetMapping("/{id}")
-    public Question getQuestionById(@PathVariable Long id) {
-        return questionService.getQuestionById(id);
+    @GetMapping
+    public ResponseEntity<List<Question>> getAllQuestions() {
+        List<Question> questions = questionService.getAllQuestions();
+        return new ResponseEntity<>(questions, HttpStatus.OK);
     }
 
     @PostMapping
-    public Question createQuestion(@RequestBody Question question) {
-        return questionService.createQuestion(question);
+    public ResponseEntity<Question> createQuestion(@Valid @RequestBody Question question) {
+        Question createdQuestion = questionService.saveQuestion(question);
+        return new ResponseEntity<>(createdQuestion, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public Question updateQuestion(@PathVariable Long id, @RequestBody Question question) {
-        question.setId(id);
-        return questionService.updateQuestion(question);
+    @GetMapping("/{id}")
+    public ResponseEntity<Question> getQuestionById(@PathVariable Long id) {
+        Question question = questionService.getQuestionById(id);
+        if (question == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(question, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteQuestion(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteQuestion(@PathVariable Long id) {
         questionService.deleteQuestion(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

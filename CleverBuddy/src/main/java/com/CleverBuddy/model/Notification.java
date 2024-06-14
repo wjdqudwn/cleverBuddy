@@ -1,9 +1,8 @@
 package com.CleverBuddy.model;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import java.time.LocalDateTime;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Entity
 public class Notification {
@@ -11,25 +10,30 @@ public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long userId;
-    private String message;
-    private boolean isRead;
-    private LocalDateTime createdAt;
 
+    @NotNull
+    @Size(min = 1, max = 255)
+    private String message;
+
+    @NotNull
+    @Size(min = 1, max = 100)
+    private String type;
+
+    public Notification() {
+    }
+
+    public Notification(String message, String type) {
+        this.message = message;
+        this.type = type;
+    }
+
+    // Getters and Setters
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
     }
 
     public String getMessage() {
@@ -40,19 +44,11 @@ public class Notification {
         this.message = message;
     }
 
-    public boolean isRead() {
-        return isRead;
+    public String getType() {
+        return type;
     }
 
-    public void setRead(boolean read) {
-        isRead = read;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setType(String type) {
+        this.type = type;
     }
 }

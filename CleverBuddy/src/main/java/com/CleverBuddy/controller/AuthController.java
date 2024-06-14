@@ -1,24 +1,30 @@
 package com.CleverBuddy.controller;
 
-import com.cleverbuddy.model.User;
-import com.cleverbuddy.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 public class AuthController {
 
-    @Autowired
-    private AuthService authService;
+    private final AuthService authService;
 
-    @PostMapping("/register")
-    public User register(@RequestBody User user) {
-        return authService.registerUser(user);
+    @Autowired
+    public AuthController(AuthService authService) {
+        this.authService = authService;
     }
 
     @PostMapping("/login")
-    public boolean login(@RequestBody User user) {
-        return authService.authenticateUser(user.getUsername(), user.getPassword());
+    public ResponseEntity<String> login(@RequestBody UserLoginRequest loginRequest) {
+        String response = authService.login(loginRequest);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<String> register(@RequestBody UserRegisterRequest registerRequest) {
+        String response = authService.register(registerRequest);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 }

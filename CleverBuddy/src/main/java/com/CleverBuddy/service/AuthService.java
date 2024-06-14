@@ -9,22 +9,48 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-
-    public User registerUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+    public AuthService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    public boolean authenticateUser(String username, String password) {
-        User user = userRepository.findByUsername(username);
-        if (user != null && passwordEncoder.matches(password, user.getPassword())) {
-            return true;
+    public String login(UserLoginRequest request) {
+        User user = userRepository.findByUsername(request.getUsername());
+        if (user != null && passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            return "Login successful";
+        } else {
+            return "Invalid username or password";
         }
-        return false;
     }
+
+    public String register(UserRegisterRequest request) {
+        if (userRepository.findByUsername(request.getUsername()) != null) {
+            return "Username already exists";
+        }
+        User newUser = new User();
+        newUser.setUsername(request.getUsername());
+        newUser.setPassword(passwordEncoder.encode(request.getPassword()));
+        newUser.setEmail(request.getEmail());
+        userRepository.save(newUser);
+        return "User registered successfully";
+    }
+}
+
+class UserLoginRequest {
+    private String username;
+    private String password;
+
+    // Getters and Setters
+}
+
+class UserRegisterRequest {
+    private String username;
+    private String password;
+    private String email;
+
+    // Getters and Setters
 }

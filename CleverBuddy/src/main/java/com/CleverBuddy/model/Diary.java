@@ -1,9 +1,8 @@
 package com.CleverBuddy.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Entity
@@ -12,12 +11,30 @@ public class Diary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long userId;
+
+    @NotNull
+    @Size(min = 1, max = 255)
+    private String title;
+
+    @NotNull
+    @Lob
     private String content;
-    private String sentiment;
-    private LocalDateTime createdAt;
 
+    private LocalDateTime createdDate;
 
+    private String emotion;
+
+    public Diary() {
+        this.createdDate = LocalDateTime.now();
+    }
+
+    public Diary(String title, String content) {
+        this.title = title;
+        this.content = content;
+        this.createdDate = LocalDateTime.now();
+    }
+
+    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -26,12 +43,12 @@ public class Diary {
         this.id = id;
     }
 
-    public Long getUserId() {
-        return userId;
+    public String getTitle() {
+        return title;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getContent() {
@@ -42,19 +59,19 @@ public class Diary {
         this.content = content;
     }
 
-    public String getSentiment() {
-        return sentiment;
+    public LocalDateTime getCreatedDate() {
+        return createdDate;
     }
 
-    public void setSentiment(String sentiment) {
-        this.sentiment = sentiment;
+    public void setCreatedDate(LocalDateTime createdDate) {
+        this.createdDate = createdDate;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public String getEmotion() {
+        return emotion;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setEmotion(String emotion) {
+        this.emotion = emotion;
     }
 }

@@ -1,55 +1,48 @@
 package com.CleverBuddy.controller;
 
-import com.CleverBuddy.model.Diary;
-import com.cleverbuddy.service.DiaryService;
-import com.cleverbuddy.service.SentimentAnalysisService;
-import com.cleverbuddy.service.TranslationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/diary")
+@RequestMapping("/diary")
 public class DiaryController {
 
-    @Autowired
-    private DiaryService diaryService;
+    private final DiaryService diaryService;
 
     @Autowired
-    private TranslationService translationService;
-
-    @Autowired
-    private SentimentAnalysisService sentimentAnalysisService;
-
-    @GetMapping("/user/{userId}")
-    public List<Diary> getDiariesByUserId(@PathVariable Long userId) {
-        return diaryService.getAllDiariesByUserId(userId);
+    public DiaryController(DiaryService diaryService) {
+        this.diaryService = diaryService;
     }
 
-    @GetMapping("/{id}")
-    public Diary getDiaryById(@PathVariable Long id) {
-        return diaryService.getDiaryById(id);
+    @GetMapping
+    public ResponseEntity<List<Diary>> getAllDiaries() {
+        List<Diary> diaries = diaryService.getAllDiaries();
+        return new ResponseEntity<>(diaries, HttpStatus.OK);
     }
 
     @PostMapping
-    public Diary writeDiary(@RequestBody Diary diary) {
-
-        String translatedText = translationService.translateToEnglish(diary.getContent());
-
-        String sentiment = sentimentAnalysisService.analyzeSentiment(translatedText);
-        diary.setSentiment(sentiment);
-        return diaryService.saveDiary(diary);
+    public ResponseEntity<Diary> createDiary(@Valid @RequestBody Diary diary) {
+        Diary createdDiary = diaryService.saveDiary(diary);
+        return new ResponseEntity<>(createdDiary, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public Diary updateDiary(@PathVariable Long id, @RequestBody Diary diary) {
-        diary.setId(id);
-        return diaryService.updateDiary(diary);
+    @GetMapping("/{id}")
+    public ResponseEntity<Diary> getDiaryById(@PathVariable Long id) {
+        Diary diary = diaryService.getDiaryById(id);
+        if (diary == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(diary, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteDiary(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteDiary(@PathVariable Long id) {
         diaryService.deleteDiary(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

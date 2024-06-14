@@ -1,9 +1,8 @@
 package com.CleverBuddy.model;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import java.time.LocalDateTime;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Entity
 public class Question {
@@ -11,11 +10,22 @@ public class Question {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long userId;
-    private String content;
-    private String response;
-    private LocalDateTime askedAt;
 
+    @NotNull
+    @Size(min = 1, max = 500)
+    private String questionText;
+
+    @Size(max = 1000)
+    private String answerText;
+
+    public Question() {
+    }
+
+    public Question(String questionText) {
+        this.questionText = questionText;
+    }
+
+    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -24,35 +34,19 @@ public class Question {
         this.id = id;
     }
 
-    public Long getUserId() {
-        return userId;
+    public String getQuestionText() {
+        return questionText;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setQuestionText(String questionText) {
+        this.questionText = questionText;
     }
 
-    public String getContent() {
-        return content;
+    public String getAnswerText() {
+        return answerText;
     }
 
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public String getResponse() {
-        return response;
-    }
-
-    public void setResponse(String response) {
-        this.response = response;
-    }
-
-    public LocalDateTime getAskedAt() {
-        return askedAt;
-    }
-
-    public void setAskedAt(LocalDateTime askedAt) {
-        this.askedAt = askedAt;
+    public void setAnswerText(String answerText) {
+        this.answerText = answerText;
     }
 }

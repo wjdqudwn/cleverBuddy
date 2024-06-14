@@ -10,23 +10,30 @@ import java.util.List;
 @Service
 public class DiaryService {
 
-    @Autowired
-    private DiaryRepository diaryRepository;
+    private final DiaryRepository diaryRepository;
+    private final TranslationService translationService;
+    private final SentimentAnalysisService sentimentAnalysisService;
 
-    public List<Diary> getAllDiariesByUserId(Long userId) {
-        return diaryRepository.findByUserId(userId);
+    @Autowired
+    public DiaryService(DiaryRepository diaryRepository, TranslationService translationService, SentimentAnalysisService sentimentAnalysisService) {
+        this.diaryRepository = diaryRepository;
+        this.translationService = translationService;
+        this.sentimentAnalysisService = sentimentAnalysisService;
+    }
+
+    public List<Diary> getAllDiaries() {
+        return diaryRepository.findAll();
+    }
+
+    public Diary saveDiary(Diary diary) {
+        String translatedText = translationService.translateToEnglish(diary.getContent());
+        String emotion = sentimentAnalysisService.analyzeEmotion(translatedText);
+        diary.setEmotion(emotion);
+        return diaryRepository.save(diary);
     }
 
     public Diary getDiaryById(Long id) {
-        return diaryRepository.findById(id).orElse(null);
-    }
-
-    public Diary createDiary(Diary diary) {
-        return diaryRepository.save(diary);
-    }
-
-    public Diary updateDiary(Diary diary) {
-        return diaryRepository.save(diary);
+        return diaryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Diary not found with id " + id));
     }
 
     public void deleteDiary(Long id) {

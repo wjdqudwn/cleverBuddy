@@ -1,41 +1,48 @@
 package com.CleverBuddy.controller;
-import com.cleverbuddy.model.Notification;
-import com.cleverbuddy.service.NotificationService;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/notifications")
+@RequestMapping("/notifications")
 public class NotificationController {
 
-    @Autowired
-    private NotificationService notificationService;
+    private final NotificationService notificationService;
 
-    @GetMapping("/user/{userId}")
-    public List<Notification> getNotificationsByUserId(@PathVariable Long userId) {
-        return notificationService.getAllNotificationsByUserId(userId);
+    @Autowired
+    public NotificationController(NotificationService notificationService) {
+        this.notificationService = notificationService;
     }
 
-    @GetMapping("/{id}")
-    public Notification getNotificationById(@PathVariable Long id) {
-        return notificationService.getNotificationById(id);
+    @GetMapping
+    public ResponseEntity<List<Notification>> getAllNotifications() {
+        List<Notification> notifications = notificationService.getAllNotifications();
+        return new ResponseEntity<>(notifications, HttpStatus.OK);
     }
 
     @PostMapping
-    public Notification createNotification(@RequestBody Notification notification) {
-        return notificationService.createNotification(notification);
+    public ResponseEntity<Notification> createNotification(@Valid @RequestBody Notification notification) {
+        Notification createdNotification = notificationService.saveNotification(notification);
+        return new ResponseEntity<>(createdNotification, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public Notification updateNotification(@PathVariable Long id, @RequestBody Notification notification) {
-        notification.setId(id);
-        return notificationService.updateNotification(notification);
+    @GetMapping("/{id}")
+    public ResponseEntity<Notification> getNotificationById(@PathVariable Long id) {
+        Notification notification = notificationService.getNotificationById(id);
+        if (notification == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(notification, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteNotification(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteNotification(@PathVariable Long id) {
         notificationService.deleteNotification(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

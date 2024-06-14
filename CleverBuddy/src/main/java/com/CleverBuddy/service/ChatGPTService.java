@@ -1,18 +1,43 @@
 package com.CleverBuddy.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.json.JSONObject;
 
 @Service
 public class ChatGPTService {
 
-    private final String apiUrl = "https://api.openai.com/v1/engines/davinci-codex/completions";
-    private final String apiKey = "sk-proj-laE1Qitb77eUXtn3roX0T3BlbkFJbOKszrcr3Jqsztch7Rnt";
+    @Value("${openai.api.key}")
+    private String apiKey;
 
-    public String getChatGPTResponse(String question) {
+    @Value("${openai.api.url}")
+    private String apiUrl;
+
+    public String getChatResponse(String prompt) {
         RestTemplate restTemplate = new RestTemplate();
-        // API 요청 로직
-        // 이 부분은 API 요청 형식에 따라 다릅니다.
-        return "ChatGPT 응답"; // 실제 API 응답을 반환
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + apiKey);
+        headers.add("Content-Type", "application/json");
+
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("model", "text-davinci-003"); // 사용할 모델 지정
+        requestBody.put("prompt", prompt);
+        requestBody.put("max_tokens", 150);
+
+        HttpEntity<String> request = new HttpEntity<>(requestBody.toString(), headers);
+        ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.POST, request, String.class);
+
+        return extractResponseFromResponseBody(response.getBody());
+    }
+
+    private String extractResponseFromResponseBody(String responseBody) {
+        // 실제 응답에서 ChatGPT의 텍스트 응답을 추출하는 로직을 구현합니다.
+        JSONObject json = new JSONObject(responseBody);
+        return json.getJSONArray("choices").getJSONObject(0).getString("text");
     }
 }

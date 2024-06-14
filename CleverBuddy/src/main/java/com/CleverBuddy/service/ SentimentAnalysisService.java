@@ -1,27 +1,40 @@
 package com.CleverBuddy.service;
 
-import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.json.JSONObject;
 
 @Service
 public class SentimentAnalysisService {
 
-    public String analyzeSentiment(String text) {
-        try {
-            ProcessBuilder pb = new ProcessBuilder("python", "path/to/abc.py", text);
-            Process process = pb.start();
-            BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            StringBuilder result = new StringBuilder();
-            String line;
-            while ((line = in.readLine()) != null) {
-                result.append(line);
-            }
-            return result.toString();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "감정 분석 실패";
+    private static final String EMOTION_API_URL = "http://localhost:5000/analyze";
+
+    public String analyzeEmotion(String text) {
+        RestTemplate restTemplate = new RestTemplate();
+        EmotionRequest request = new EmotionRequest(text);
+        String response = restTemplate.postForObject(EMOTION_API_URL, request, String.class);
+        return extractEmotionFromResponse(response);
+    }
+
+    private String extractEmotionFromResponse(String response) {
+        JSONObject jsonResponse = new JSONObject(response);
+        return jsonResponse.getString("emotion");
+    }
+
+    private static class EmotionRequest {
+        private String text;
+
+        public EmotionRequest(String text) {
+            this.text = text;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public void setText(String text) {
+            this.text = text;
         }
     }
 }
