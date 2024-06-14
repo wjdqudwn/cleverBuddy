@@ -1,5 +1,3 @@
 # 소프트웨어 설계
 
-This is your README. READMEs are where you can communicate what your project is and how to use it.
-
-Write your name on line 6, save it, and then head back to GitHub Desktop.
+emotion model 구현은 keggle에 있는 감정분류 모델 데이터를 사용하였습니다.
