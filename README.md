@@ -1,4 +1,4 @@
-# Welcome to GitHub Desktop!
+# 소프트웨어 설계
 
 This is your README. READMEs are where you can communicate what your project is and how to use it.
 
